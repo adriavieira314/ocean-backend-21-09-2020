@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 
 //Executando o express
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 //Configurando o Body Parser
 //Ele permite ter o body no req.
@@ -14,8 +14,15 @@ app.use(jsonParser);
 //Endpoints de envio de mensagens
 //CRUD - Create, Read(Read All e Read Single), Update and Delete
 const mensagens = [
-    'Sou uma mensagem',
-    'Sou outra mensagem'
+    {
+        id: 0,
+        texto: 'Cachorro quente'
+
+    },
+    {
+        id: 1,
+        texto: 'Sushi'
+    }  
 ];
 
 app.get('/', (req, res) => {
@@ -29,14 +36,16 @@ app.get('/mensagens', (req, res) => {
 
 //Create
 app.post('/mensagens', (req, res) => {
-    //Adquiro a mensagem do corpo da requisição
-    const mensagem = req.body.mensagem;
+    //Adquiro o objeto do corpo
+    const mensagem = req.body;
+    //Capturando o tamanho do objeto mensagens
+    const id = mensagens.length;
+    //adicionando o campo id na nova mensagem
+    mensagem.id = id;
     //Insiro a mensagem na lista
     mensagens.push(mensagem);
-    //Identificando o id da mensagem
-    const id = mensagens.length;
 
-    res.send(`A sua mensagem ${mensagem} foi adicionada. ID: ${id}`);
+    res.send(`A sua mensagem ${mensagem.texto} foi adicionada. ID: ${id}`);
 });
 
 //Read Single
@@ -46,17 +55,19 @@ app.get('/mensagens/:id', (req, res) => {
     //Identificando qual é a mensagem pelo o id
     const mensagem = mensagens[id];
 
-    res.json(`${mensagem}: ${id}`);
+    res.json(`${mensagem.texto}`);
 });
 
 //Update
 app.put('/mensagens/:id', (req, res) => {
     // Acessando o paramentro id
     const id = req.params.id;
-    //Identificando a mensagem no array pelo o id e atualizando a mensagem
-    mensagens[id] = req.body.mensagem;
+    //Capturando a nova mensagem do body da requisição
+    const novoTexto = req.body.texto;
+    //Atualizando a nova mensagem ao objeto especificado pelo id
+    mensagens[id].texto = novoTexto;
 
-    res.send(`Mensagem com id ${id} foi atualizada. ${mensagens[id]}`);
+    res.send(`Mensagem com id ${id} foi atualizada. ${mensagens[id].texto}`);
 });
 
 //Delete
