@@ -1,86 +1,102 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongodb = require('mongodb');
 
-//Executando o express
-const app = express();
-const port = process.env.PORT || 3000;
+//Criando um bloco assíncrono e já executando ele
+(async () => {
 
-//Configurando o Body Parser
-//Ele permite ter o body no req.
-//Dessa forma consigo ler o JSON do body da requisição
-const jsonParser = bodyParser.json();
-app.use(jsonParser);
+    console.info('Conectando ao banco de dados MongoDB!');
+    //Conexão com o banco de dados
+    const connectionString = 'mongodb+srv://admin:adria1997@ocean.ehdbu.mongodb.net/ocean_mongodb?retryWrites=true&w=majority';
+    const client = await mongodb.MongoClient.connect(connectionString, {
+        useUnifiedTopology: true
+    })
 
-//Endpoints de envio de mensagens
-//CRUD - Create, Read(Read All e Read Single), Update and Delete
-const mensagens = [
-    {
-        id: 0,
-        texto: 'Cachorro quente'
+    console.info('Banco de dados conectado com sucesso!');
 
-    },
-    {
-        id: 1,
-        texto: 'Sushi'
-    }  
-];
+    //Executando o express
+    const app = express();
+    const port = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-    res.send('Hello, Adria');
-});
+    //Configurando o Body Parser
+    //Ele permite ter o body no req.
+    //Dessa forma consigo ler o JSON do body da requisição
+    const jsonParser = bodyParser.json();
+    app.use(jsonParser);
 
-//Read All
-app.get('/mensagens', (req, res) => {
-    res.json(mensagens);    
-});
+    //Endpoints de envio de mensagens
+    //CRUD - Create, Read(Read All e Read Single), Update and Delete
+    const mensagens = [
+        {
+            id: 0,
+            texto: 'Cachorro quente'
 
-//Create
-app.post('/mensagens', (req, res) => {
-    //Adquiro o objeto do corpo
-    const mensagem = req.body;
-    //Capturando o tamanho do objeto mensagens
-    const id = mensagens.length;
-    //adicionando o campo id na nova mensagem
-    mensagem.id = id;
-    //Insiro a mensagem na lista
-    mensagens.push(mensagem);
+        },
+        {
+            id: 1,
+            texto: 'Sushi'
+        }  
+    ];
 
-    res.send(`A sua mensagem ${mensagem.texto} foi adicionada. ID: ${id}`);
-});
+    app.get('/', (req, res) => {
+        res.send('Hello, Adria');
+    });
 
-//Read Single
-app.get('/mensagens/:id', (req, res) => {
-    //Acessando o id
-    const id = req.params.id;
-    //Identificando qual é a mensagem pelo o id
-    const mensagem = mensagens[id];
+    //Read All
+    app.get('/mensagens', (req, res) => {
+        res.json(mensagens);    
+    });
 
-    res.json(`${mensagem.texto}`);
-});
+    //Create
+    app.post('/mensagens', (req, res) => {
+        //Adquiro o objeto do corpo
+        const mensagem = req.body;
+        //Capturando o tamanho do objeto mensagens
+        const id = mensagens.length;
+        //adicionando o campo id na nova mensagem
+        mensagem.id = id;
+        //Insiro a mensagem na lista
+        mensagens.push(mensagem);
 
-//Update
-app.put('/mensagens/:id', (req, res) => {
-    // Acessando o paramentro id
-    const id = req.params.id;
-    //Capturando a nova mensagem do body da requisição
-    const novoTexto = req.body.texto;
-    //Atualizando a nova mensagem ao objeto especificado pelo id
-    mensagens[id].texto = novoTexto;
+        res.send(`A sua mensagem ${mensagem.texto} foi adicionada. ID: ${id}`);
+    });
 
-    res.send(`Mensagem com id ${id} foi atualizada. ${mensagens[id].texto}`);
-});
+    //Read Single
+    app.get('/mensagens/:id', (req, res) => {
+        //Acessando o id
+        const id = req.params.id;
+        //Identificando qual é a mensagem pelo o id
+        const mensagem = mensagens[id];
 
-//Delete
-app.delete('/mensagens/:id', (req, res) => {
-    // Acessando o paramentro id
-    const id = req.params.id;
-    //Deltando a mensagem com o id selecionado
-    delete mensagens[id];
+        res.json(`${mensagem.texto}`);
+    });
 
-    res.send(`Mensagem de id ${id} apagada`);
-});
+    //Update
+    app.put('/mensagens/:id', (req, res) => {
+        // Acessando o paramentro id
+        const id = req.params.id;
+        //Capturando a nova mensagem do body da requisição
+        const novoTexto = req.body.texto;
+        //Atualizando a nova mensagem ao objeto especificado pelo id
+        mensagens[id].texto = novoTexto;
 
-//Ouvindo a porta e recebendo suas requisições
-app.listen(port, () => {
-    console.log(`Listening on port http://localhost:${port}`);
-})
+        res.send(`Mensagem com id ${id} foi atualizada. ${mensagens[id].texto}`);
+    });
+
+    //Delete
+    app.delete('/mensagens/:id', (req, res) => {
+        // Acessando o paramentro id
+        const id = req.params.id;
+        //Deltando a mensagem com o id selecionado
+        delete mensagens[id];
+
+        res.send(`Mensagem de id ${id} apagada`);
+    });
+
+    //Ouvindo a porta e recebendo suas requisições
+    app.listen(port, () => {
+        console.log(`Listening on port http://localhost:${port}`);
+    })
+
+})();
+//Finalizando o bloco e ja executando ele
